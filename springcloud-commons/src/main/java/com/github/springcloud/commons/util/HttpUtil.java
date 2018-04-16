@@ -7,12 +7,11 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class HttpUtil {
-	
-	
-	
-	
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import com.sun.jersey.server.impl.application.WebApplicationContext;
+
+public class HttpUtil {
     /**
      * 向指定 URL 发送POST方法的请求
      * 
@@ -72,5 +71,4 @@ public class HttpUtil {
         }
         return result;
     }
-
 }

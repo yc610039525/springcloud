@@ -12,9 +12,7 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -27,46 +25,19 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 
-public class HBaseUtil {
-	/** hadoop 连接 */
+public class HBaseClientAPI {
+	private static Logger logger = LoggerFactory.getLogger(HBaseClientAPI.class);
 	private static Configuration conf = null;
-	/** hbase 连接 */
 	private static Connection con = null;
-	/** 会话 */
 	private static Admin admin = null;
-	
-	private static String ip = "118.24.21.129";
-	private static String port = "2183";
-	private static String hbase_master_port = "16010";
-	private static String hadoop_home = "H:\\springcloud\\hadoop-2.8.3";
-	static HBaseAdmin hBaseAdmin;
-	// 初始化连接
-	static {
-		// 获得配制文件对象
-		System.setProperty("hadoop.home.dir", hadoop_home);
-		conf = HBaseConfiguration.create();
-		// 设置配置参数
-		conf.set("hbase.zookeeper.quorum", ip);
-		conf.set("hbase.zookeeper.property.clientPort", port);
-		
-        
-		// 如果hbase是集群，这个必须加上
-		// 这个ip和端口是在hadoop/mapred-site.xml配置文件配置的
-		conf.set("hbase.master", ip + ":" + hbase_master_port);
-//		
-//		try {
-//			hBaseAdmin = new HBaseAdmin(conf);
-//		} catch (MasterNotRunningException e) {
-//			e.printStackTrace();
-//		} catch (ZooKeeperConnectionException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-	}
+	private static final String CONNECT_ADDR = "192.168.1.8:2181," + "192.168.1.9:2181," + "192.168.1.10:2181";
+	private static String PORT = "2183";
+	private static String HBASE_MASTER = "192.168.1.8:16010";
 
 	/**
 	 * 获取连接
@@ -75,15 +46,21 @@ public class HBaseUtil {
 	 */
 	public synchronized static Connection getConnection() {
 		try {
+			if(conf==null){
+				conf = HBaseConfiguration.create();
+				conf.set("hbase.zookeeper.property.clientPort", PORT);
+				conf.set("hbase.zookeeper.quorum", CONNECT_ADDR);
+				conf.set("hbase.master", HBASE_MASTER);
+				conf.set("hbase.rootdir", "hdfs://192.168.1.8:9000/hbase");
+				logger.info("初始化Hbase配置信息成功......");
+			}
 			if (null == con || con.isClosed()) {
-				// 获得连接对象
 				con = ConnectionFactory.createConnection(conf);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.out.println("获取连接失败!");
 			e.printStackTrace();
 		}
-
 		return con;
 	}
 
@@ -103,6 +80,7 @@ public class HBaseUtil {
 			e.printStackTrace();
 		}
 	}
+
 	/**
 	 * 创建表
 	 * 
@@ -178,6 +156,29 @@ public class HBaseUtil {
 		} finally {
 			close();
 		}
+	}
+
+	/**
+	 * DDL 删除表
+	 * 
+	 * @param tableName
+	 * @return
+	 * @throws IOException
+	 */
+	public static boolean dropTable(String tableName) {
+		Connection connection = getConnection();
+		try {
+			HBaseAdmin admin = (HBaseAdmin) connection.getAdmin();
+			if (admin.tableExists(tableName)) {
+				admin.disableTable(tableName);
+				admin.deleteTable(tableName);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
