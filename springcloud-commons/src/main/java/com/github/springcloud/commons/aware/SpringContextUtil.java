@@ -10,14 +10,14 @@ public class SpringContextUtil implements ApplicationContextAware {
 	public static ApplicationContext ctx;
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.ctx = applicationContext;
+		SpringContextUtil.ctx = applicationContext;
 	}
 
 	public ApplicationContext getCtx() {
-		return ctx;
+		return SpringContextUtil.ctx;
 	}
 	public static <T> T getBean(String name, Class<T> requiredType) throws BeansException{
-		T bean = ctx.getBean(name, requiredType);
+		T bean = SpringContextUtil.ctx.getBean(name, requiredType);
 		return bean;
 	}
 }
