@@ -1,14 +1,12 @@
 package com.github.springcloud.commons.aop.advisor;
 
 import org.aopalliance.aop.Advice;
-import org.springframework.aop.Pointcut;
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
-import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 public class OrderAdvisorConfig {
 	
 //	@Bean("OrderAdvisor")

@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,9 +82,7 @@ public class HttpUtil {
 	public static String request(String url, Map<String, String> nameValuePairs, String requestMethod) {
 		return request(url, nameValuePairs, requestMethod, null);
 	}
-	/**
-	 * 参数为 xxxx?xxx=xxx&xx=xxx
-	 */
+
 	public static String request(String url, Map<String, String> nameValuePairs, String requestMethod, 
 			String contentType) {
 		PrintWriter out = null;
@@ -127,6 +124,7 @@ public class HttpUtil {
 				conn.setRequestProperty("Content-Type", contentType);
 			}
 			conn.setRequestProperty("connection", "Keep-Alive");
+			conn.setUseCaches(false); 
 			conn.setRequestProperty("Charset", "UTF-8");
 			conn.setConnectTimeout(10000);// 连接的超时时间
 			conn.setReadTimeout(5000);// 读数据的超时时间
@@ -179,6 +177,7 @@ public class HttpUtil {
 			conn.setRequestProperty("Content-Type", HttpUtil.CONTENT_TYPE_JSON);
 			conn.setRequestProperty("connection", "Keep-Alive");
 			conn.setRequestProperty("Charset", "UTF-8");
+			conn.setUseCaches(false); 
 			conn.setConnectTimeout(10000);
 			conn.setReadTimeout(5000);
 			conn.setDoInput(true);
@@ -208,9 +207,7 @@ public class HttpUtil {
 		}
 		return result;
 	}
-	/**
-	 * POST 提交不同类型请求参数 JSON+xxxx?xxx=xxx&xx=xxx
-	 */
+
 	public static <T> String submitMulti(String url, Map<String, String> nameValuePairs,T t) {
 		PrintWriter out = null;
 		BufferedReader in = null;
@@ -237,6 +234,7 @@ public class HttpUtil {
 			conn.setRequestProperty("Content-Type", HttpUtil.CONTENT_TYPE_JSON);//类型必须设置为JSON
 			conn.setRequestProperty("connection", "Keep-Alive");
 			conn.setRequestProperty("Charset", "UTF-8");
+			conn.setUseCaches(false); 
 			conn.setConnectTimeout(10000);
 			conn.setReadTimeout(5000);
 			conn.setDoInput(true);
@@ -257,7 +255,7 @@ public class HttpUtil {
 					result = "OK";
 				}
 			}
-//			conn.disconnect();
+			conn.disconnect();
 		} catch (Exception e) {
 			logger.debug("发送 HTTP请求出现异常！" + e.getMessage());
 			e.printStackTrace();

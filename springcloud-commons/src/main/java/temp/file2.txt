@@ -1,0 +1,266 @@
+
+
+###########################准备环境##############################
+开启IP显示
+vi /etc/sysconfig/network-scripts/ifcfg-ens33
+service network restart
+显示IP
+ip addr
+
+
+安装SSH
+sudo apt-get install ssh
+sudo apt-get install rsync
+
+
+SSH无密码自登陆
+
+①生成公钥和私钥、②导入公钥到认证文件、③更改权限
+ssh-keygen -t rsa -f ~/.ssh/id_rsa
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh && chmod 600 ~/.ssh/*
+
+设置主机->从机的无密码登录
+cat ~/.ssh/id_rsa.pub | ssh root@s1 'cat - >> ~/.ssh/authorized_keys'
+cat ~/.ssh/id_rsa.pub | ssh root@s2 'cat - >> ~/.ssh/authorized_keys'
+
+
+
+使用root权限登陆后，输入关闭防火墙命令
+/etc/init.d/iptables stop
+service iptables stop
+chkconfig iptables off
+或者
+使用root权限登陆后，输入关闭防火墙命令
+systemctl status firewalld.service
+
+systemctl stop firewalld.service #停止firewall
+systemctl disable firewalld.service #禁止firewall开机启动
+
+
+
+在master上操作无密码登陆master/slave1/slave2成功后，直接拷贝给其他主机即可
+然后，将证书文件复制到其他机器的用户主目录下
+# scp -P 48490 authorized_keys master:/root/.ssh/
+# scp -P 48490 authorized_keys slave1:/root/.ssh/
+# scp -P 48490 authorized_keys slave2:/root/.ssh/
+
+
+使用scp命令进行从本地到远程（或远程到本地）的轻松文件传输操作：
+scp -r /home/hadoop/hadoop     slave1:/home/hadoop
+scp -r /home/hadoop/hadoop     slave2:/home/hadoop
+
+
+版本选择================》参考官网
+
+Hadoop-2.8.3+
+
+HBase-2.0.x
+
+ZooKeeper 3.4.x is required.
+
+####################################JDK#####################################
+
+export JAVA_HOME=/usr/java
+export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+export PATH=$JAVA_HOME/bin:$PATH
+
+
+export JAVA_HOME=/usr/java   
+export HADOOP_HOME=/usr/local/hadoop   
+export ZOOKEEPER_HOME=/usr/local/zookeeper   
+export PATH=.:$HADOOP_HOME/bin:$ZOOKEEPER_HOME/bin:$JAVA_HOME/bin:$PATH 
+source /etc/profile
+
+
+
+ZOOKEEPER：
+
+dataDir=/usr/local/zookeeper/data
+server.0=m1:2888:3888
+server.1=s1:2888:3888
+server.2=s2:2888:3888
+touch myid
+hostname m1   //当前有效
+vi /etc/sysconfig/network	//重启后生效
+HOSTNAME=m1
+
+vi /etc/hosts
+m1 192.168.1.8
+s1 192.168.1.9
+s2 192.168.1.10
+
+
+
+
+
+
+HADOOP：
+core-site.xml===============》
+<configuration>
+    <property>
+        <name>fs.default.name</name>
+        <value>hdfs://m1:9000</value>
+    </property>
+</configuration>
+
+
+hadoop-env.sh================》
+
+export JAVA_HOME=/usr/java
+
+
+hdfs-site.xml================》
+
+<configuration>
+    <property>
+        <name>dfs.name.dir</name>
+        <value>/usr/local/hadoop/name</value>
+    </property>
+    <property>
+        <name>dfs.data.dir</name>
+        <value>/usr/local/hadoop/data</value>
+    </property>
+    <property>
+        <name>dfs.replication</name>
+        <value>3</value>
+    </property>
+</configuration>
+
+mapred-site.xml================》
+
+<configuration>
+    <property>
+        <name>mapred.job.tracker</name>
+        <value>m1:9001</value>
+    </property>
+</configuration>
+
+salves================》s1 s2
+
+
+HBASE：
+
+HBase集群安装配置
+
+hbase-env.sh================》
+
+export JAVA_HOME=/usr/java
+export HBASE_CLASSPATH=/usr/local/hadoop/etc/hadoop
+export HBASE_MANAGES_ZK=false
+
+
+hbase-site.xml================》
+
+<configuration>
+    <property>
+        <name>hbase.rootdir</name>
+        <value>hdfs://m1:9000/hbase</value>
+    </property>
+    <property>
+        <name>hbase.master</name>
+        <value>m1</value>
+    </property>
+    <property>
+        <name>hbase.cluster.distributed</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>hbase.zookeeper.property.clientPort</name>
+        <value>2181</value>
+    </property>
+    <property>
+        <name>hbase.zookeeper.quorum</name>
+        <value>m1,s1,s2</value>
+    </property>
+    <property>
+        <name>zookeeper.session.timeout</name>
+        <value>60000000</value>
+    </property>
+    <property>
+        <name>dfs.support.append</name>
+        <value>true</value>
+    </property>
+</configuration>
+
+regionservers================》s1 s2
+
+
+
+启动集群
+
+1. 启动ZooKeeper
+
+~/zookeeper/bin/zkServer.sh start
+
+2. 启动hadoop
+
+/bin/hadoop namenode -format第一次
+
+/hadoop/sbin/start-all.sh
+
+3. 启动hbase
+
+~/hbase/bin/start-hbase.sh
+
+root@m1
+5061 NameNode
+5414 ResourceManager
+5255 SecondaryNameNode
+5927 Jps
+5818 HMaster
+1740 QuorumPeerMain
+
+root@s1
+
+6704 HRegionServer
+6440 DataNode
+6810 Jps
+6541 NodeManager
+1823 QuorumPeerMain
+
+
+dataDir=/usr/local/zookeeper/data
+server.0=m1:2888:3888
+server.1=s1:2888:3888
+server.2=s2:2888:3888
+
+HBASE SHELL
+
+通用命令
+status: 提供HBase的状态，例如，服务器的数量。
+version: 提供正在使用HBase版本。
+table_help: 表引用命令提供帮助。
+whoami: 提供有关用户的信息。
+
+数据定义语言
+这些是关于HBase在表中操作的命令。
+
+create: 创建一个表。
+create 'emp', 'personal data', 'professional data'
+
+list: 列出HBase的所有表。
+disable: 禁用表。
+is_disabled: 验证表是否被禁用。
+enable: 启用一个表。
+is_enabled: 验证表是否已启用。
+describe: 提供了一个表的描述。
+alter: 改变一个表。
+exists: 验证表是否存在。
+drop: 从HBase中删除表。
+drop_all: 丢弃在命令中给出匹配“regex”的表。
+Java Admin API: 在此之前所有的上述命令，Java提供了一个通过API编程来管理实现DDL功能。
+在这个org.apache.hadoop.hbase.client包中有HBaseAdmin和HTableDescriptor 这两个重要的类提供DDL功能。
+数据操纵语言
+put: 把指定列在指定的行中单元格的值在一个特定的表。
+get: 取行或单元格的内容。
+delete: 删除表中的单元格值。
+deleteall: 删除给定行的所有单元格。
+scan: 扫描并返回表数据。
+count: 计数并返回表中的行的数目。
+truncate: 禁用，删除和重新创建一个指定的表。
+Java client API: 在此之前所有上述命令，Java提供了一个客户端API来实现DML功能，CRUD（创建检索更新删除）
+操作更多的是通过编程，在org.apache.hadoop.hbase.client包下。 在此包HTable 的 Put和Get是重要的类。
+
+
+JAVA操作HBASE
