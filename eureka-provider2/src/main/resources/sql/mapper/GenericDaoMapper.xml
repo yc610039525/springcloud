@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="GenericDaoMapper">
+	<select id="selectOne" resultType="java.util.Map">  
+        	select * from tb_user where id = #{id,jdbcType=NUMERIC}  
+	</select>
+	<select id="querySql" resultType="hashmap" statementType="STATEMENT" parameterType= "java.util.Map">  
+        ${statement}  
+	</select>
+	<select id="updateSql" resultType="int" statementType="STATEMENT" parameterType= "java.util.Map">  
+        ${statement}  
+	</select>
+</mapper>

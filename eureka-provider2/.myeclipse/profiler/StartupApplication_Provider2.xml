@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="profiler.settings.instrument.empty.methods">true</entry>
+<entry key="ProfilerCPUSettings_profile_runnables">true</entry>
+<entry key="ProfilerCPUSettings_filter_type">2</entry>
+<entry key="ProfilerMemorySettings_track_every">10</entry>
+<entry key="ProfilerMemorySettings_mode">4</entry>
+<entry key="ProfilerCPUSettings_root_classes">com.chamc.dao.test.**
+com.github.caoyeung.application.**
+com.github.caoyeung.base.**
+com.github.caoyeung.common.core.**
+com.github.caoyeung.common.mybatis.dao.**
+com.github.caoyeung.common.mybatis.util.**
+com.github.caoyeung.common.redis.**
+com.github.caoyeung.config.**
+com.github.caoyeung.controller.**
+com.github.caoyeung.dao.**
+com.github.caoyeung.inout.**
+com.github.caoyeung.jobs.**
+com.github.caoyeung.model.**
+com.github.caoyeung.service.**
+com.github.caoyeung.util.**
+</entry>
+<entry key="ProfilerCPUSettings_filter_value">com.chamc.dao.test.*,
+com.github.caoyeung.application.*,
+com.github.caoyeung.base.*,
+com.github.caoyeung.common.core.*,
+com.github.caoyeung.common.mybatis.dao.*,
+com.github.caoyeung.common.mybatis.util.*,
+com.github.caoyeung.common.redis.*,
+com.github.caoyeung.config.*,
+com.github.caoyeung.controller.*,
+com.github.caoyeung.dao.*,
+com.github.caoyeung.inout.*,
+com.github.caoyeung.jobs.*,
+com.github.caoyeung.model.*,
+com.github.caoyeung.service.*,
+com.github.caoyeung.util.*</entry>
+<entry key="profiler.settings.istrument.getter.setter.methods">true</entry>
+<entry key="myeclipse.profiling.mode">0</entry>
+<entry key="ProfilerMemorySettings_stacktraces">-1</entry>
+</properties>
